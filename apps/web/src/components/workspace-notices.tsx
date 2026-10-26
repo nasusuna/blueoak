@@ -37,7 +37,7 @@ export const WorkspaceNotices = async () => {
       return {
         id: `due-${row.unit_id}-${row.due_date}`,
         dueDate: row.due_date,
-        tone: status === "overdue" ? "warning" : "default",
+        tone: status === "overdue" ? ("warning" as const) : ("default" as const),
         text: `${statusLabel[status]}: ${serialByUnit.get(row.unit_id) ?? "Machine"} at ${customerName.get(customerId ?? "") ?? "a customer"} on ${row.due_date}`,
       };
     })
