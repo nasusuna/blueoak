@@ -1,0 +1,15 @@
+{
+  "name": "service-app",
+  "private": true,
+  "packageManager": "pnpm@10.18.3",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "corepack pnpm --filter web dev",
+    "typecheck": "corepack pnpm --filter @service-app/core --filter @service-app/db --filter web typecheck",
+    "test": "corepack pnpm --filter @service-app/core test",
+    "lint": "corepack pnpm --filter web lint",
+    "seed:staff": "corepack pnpm --filter web seed:staff"
+  }
+}
