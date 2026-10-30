@@ -65,10 +65,8 @@ export const createChemical = async (_state: FormState, formData: FormData): Pro
     created_by: userId,
   });
 
-  if (error) {
-    return {
-      error: error.code === "23505" ? "That chemical name is already in the list." : "The chemical could not be saved.",
-    };
+  if (error && error.code !== "23505") {
+    return { error: "The chemical could not be saved." };
   }
 
   redirect("/app/chemicals");
