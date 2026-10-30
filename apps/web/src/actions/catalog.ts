@@ -33,10 +33,8 @@ export const createEquipmentType = async (_state: FormState, formData: FormData)
     created_by: userId,
   });
 
-  if (error) {
-    return {
-      error: error.code === "23505" ? "That equipment name is already in the list." : "The equipment type could not be saved.",
-    };
+  if (error && error.code !== "23505") {
+    return { error: "The equipment type could not be saved." };
   }
 
   redirect("/app/equipment");
