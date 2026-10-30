@@ -9,8 +9,8 @@ const geist = Geist({
 
 export const metadata: Metadata = {
   title: {
-    default: "Service App",
-    template: "%s · Service App",
+    default: "Blue Oak",
+    template: "%s · Blue Oak",
   },
   description: "Service workspace for installed equipment and preventive maintenance.",
 };

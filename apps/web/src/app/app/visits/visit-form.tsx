@@ -7,6 +7,8 @@ import { recordVisit } from "@/actions/visits";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select } from "@/components/ui/select";
+import { formatDisplayDate } from "@/lib/format";
 
 export type VisitUnit = {
   id: string;
@@ -16,7 +18,6 @@ export type VisitUnit = {
 };
 
 const initialState: FormState = { error: null };
-const fieldClass = "h-11 rounded-md border border-input bg-background px-3 text-base";
 
 export const VisitForm = ({ units }: { units: VisitUnit[] }) => {
   const [state, formAction, pending] = useActionState(recordVisit, initialState);
@@ -33,11 +34,10 @@ export const VisitForm = ({ units }: { units: VisitUnit[] }) => {
     <form action={formAction} className="grid gap-4 sm:grid-cols-2">
       <div className="flex flex-col gap-2 sm:col-span-2">
         <Label htmlFor="unit_id">Machine</Label>
-        <select
+        <Select
           id="unit_id"
           name="unit_id"
           required
-          className={fieldClass}
           value={unitId}
           onChange={(event) => setUnitId(event.target.value)}
         >
@@ -46,20 +46,19 @@ export const VisitForm = ({ units }: { units: VisitUnit[] }) => {
               {unit.label}
             </option>
           ))}
-        </select>
+        </Select>
       </div>
       <div className="flex flex-col gap-2">
         <Label htmlFor="type">Visit type</Label>
-        <select
+        <Select
           id="type"
           name="type"
-          className={fieldClass}
           value={visitType}
           onChange={(event) => setVisitType(event.target.value === "breakdown" ? "breakdown" : "preventive")}
         >
           <option value="preventive">Preventive maintenance</option>
           <option value="breakdown">Breakdown</option>
-        </select>
+        </Select>
       </div>
       <div className="flex flex-col gap-2">
         <Label htmlFor="event_date">Visit date</Label>
@@ -75,7 +74,7 @@ export const VisitForm = ({ units }: { units: VisitUnit[] }) => {
       </div>
       {visitType === "preventive" && selected?.openDue ? (
         <p className="text-base sm:col-span-2">
-          This closes the due date {selected.openDue}. The next due date is {nextDue}, counted from that due date.
+          This closes the due date {formatDisplayDate(selected.openDue)}. The next due date is {formatDisplayDate(nextDue)}, counted from that due date.
         </p>
       ) : null}
       {visitType === "breakdown" && selected?.openDue ? (

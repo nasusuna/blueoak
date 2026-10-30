@@ -1,24 +1,28 @@
 @import "tailwindcss";
 
 :root {
-  --background: oklch(0.985 0.006 180);
-  --foreground: oklch(0.24 0.02 190);
+  --background: oklch(0.975 0.008 175);
+  --foreground: oklch(0.21 0.02 190);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.24 0.02 190);
-  --primary: oklch(0.45 0.07 185);
-  --primary-foreground: oklch(0.985 0.006 180);
-  --secondary: oklch(0.96 0.008 180);
+  --card-foreground: oklch(0.21 0.02 190);
+  --primary: oklch(0.38 0.07 170);
+  --primary-foreground: oklch(0.985 0.006 170);
+  --secondary: oklch(0.955 0.012 175);
   --secondary-foreground: oklch(0.28 0.02 190);
-  --muted: oklch(0.96 0.008 180);
-  --muted-foreground: oklch(0.45 0.02 190);
-  --accent: oklch(0.95 0.012 180);
+  --muted: oklch(0.955 0.01 175);
+  --muted-foreground: oklch(0.46 0.02 190);
+  --accent: oklch(0.945 0.016 175);
   --accent-foreground: oklch(0.28 0.02 190);
-  --destructive: oklch(0.55 0.18 25);
+  --destructive: oklch(0.52 0.18 25);
   --destructive-foreground: oklch(0.985 0.006 180);
-  --border: oklch(0.9 0.01 180);
-  --input: oklch(0.9 0.01 180);
-  --ring: oklch(0.45 0.07 185);
-  --radius: 0.75rem;
+  --warning: oklch(0.95 0.045 85);
+  --warning-foreground: oklch(0.4 0.09 65);
+  --success: oklch(0.94 0.04 155);
+  --success-foreground: oklch(0.34 0.08 155);
+  --border: oklch(0.91 0.012 180);
+  --input: oklch(0.9 0.012 180);
+  --ring: oklch(0.38 0.07 170);
+  --radius: 0.85rem;
 }
 
 @theme inline {
@@ -36,16 +40,44 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 }
 
 body {
-  background: var(--background);
+  background:
+    radial-gradient(900px 420px at 100% -10%, oklch(0.93 0.03 175 / 0.7), transparent 55%),
+    var(--background);
   color: var(--foreground);
   font-size: 16px;
+}
+
+.data-table thead th {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+.data-table tbody tr {
+  transition: background-color 120ms ease;
+}
+
+.data-table tbody tr:hover {
+  background: var(--accent);
+}
+
+.data-table td,
+.data-table th {
+  vertical-align: middle;
 }

@@ -7,10 +7,11 @@ import { skipPmd } from "@/actions/visits";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select } from "@/components/ui/select";
+import { formatDisplayDate } from "@/lib/format";
 import type { VisitUnit } from "./visit-form";
 
 const initialState: FormState = { error: null };
-const fieldClass = "h-11 rounded-md border border-input bg-background px-3 text-base";
 
 export const SkipForm = ({ units }: { units: VisitUnit[] }) => {
   const [state, formAction, pending] = useActionState(skipPmd, initialState);
@@ -22,11 +23,10 @@ export const SkipForm = ({ units }: { units: VisitUnit[] }) => {
     <form action={formAction} className="grid gap-4 sm:grid-cols-2">
       <div className="flex flex-col gap-2">
         <Label htmlFor="skip_unit_id">Machine</Label>
-        <select
+        <Select
           id="skip_unit_id"
           name="unit_id"
           required
-          className={fieldClass}
           value={unitId}
           onChange={(event) => setUnitId(event.target.value)}
         >
@@ -35,7 +35,7 @@ export const SkipForm = ({ units }: { units: VisitUnit[] }) => {
               {unit.label}
             </option>
           ))}
-        </select>
+        </Select>
       </div>
       <div className="flex flex-col gap-2">
         <Label htmlFor="skipped_on">Skipped on</Label>
@@ -47,7 +47,7 @@ export const SkipForm = ({ units }: { units: VisitUnit[] }) => {
       </div>
       {selected?.openDue ? (
         <p className="text-base sm:col-span-2">
-          This closes {selected.openDue} without a visit. The next due date is {nextDue}.
+          This closes {formatDisplayDate(selected.openDue)} without a visit. The next due date is {formatDisplayDate(nextDue)}.
         </p>
       ) : null}
       {state.error ? (

@@ -38,18 +38,16 @@ const HomePage = async () => {
 
   return (
     <>
-      <div className="flex flex-col gap-2">
-        <h1 className="text-2xl font-semibold">{profile.full_name}</h1>
-        <p className="text-base text-muted-foreground">
-          {roleLabel[profile.role]}
-          {tenant ? ` · ${tenant.name}` : ""}
-        </p>
+      <div className="flex flex-col gap-1">
+        <p className="text-sm font-medium text-primary">{tenant?.name ?? "Blue Oak"}</p>
+        <h1 className="text-3xl font-semibold tracking-tight">{profile.full_name}</h1>
+        <p className="text-base text-muted-foreground">{roleLabel[profile.role]}</p>
       </div>
 
       {profile.role === "customer" ? (
         <Card>
           <CardHeader>
-            <h2 className="text-xl font-semibold">Customer portal</h2>
+            <h2 className="text-lg font-semibold tracking-tight">Customer portal</h2>
           </CardHeader>
           <CardContent>
             <p className="text-base text-muted-foreground">
@@ -61,41 +59,32 @@ const HomePage = async () => {
 
       {isStaff(profile.role) ? (
         <div className="grid gap-4 sm:grid-cols-3">
-          <Card>
-            <CardHeader>
-              <h2 className="text-xl font-semibold">Customers</h2>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-3">
-              <p className="text-base">{labCount === 1 ? "1 lab or hospital" : `${labCount} labs and hospitals`}</p>
-              <Link href="/app/customers" className="text-base text-primary underline-offset-4 hover:underline">
+          <Card className="h-full">
+            <CardContent className="flex h-full flex-col gap-3">
+              <h2 className="text-sm font-medium text-muted-foreground">Customers</h2>
+              <p className="text-4xl font-semibold tracking-tight">{labCount}</p>
+              <p className="text-base text-muted-foreground">{labCount === 1 ? "Lab or hospital" : "Labs and hospitals"}</p>
+              <Link href="/app/customers" className="mt-auto text-base font-medium text-primary underline-offset-4 hover:underline">
                 Open customers
               </Link>
             </CardContent>
           </Card>
-          <Card>
-            <CardHeader>
-              <h2 className="text-xl font-semibold">Installed units</h2>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-3">
-              <p className="text-base">{machineCount === 1 ? "1 machine" : `${machineCount} machines`}</p>
-              <Link href="/app/units" className="text-base text-primary underline-offset-4 hover:underline">
+          <Card className="h-full">
+            <CardContent className="flex h-full flex-col gap-3">
+              <h2 className="text-sm font-medium text-muted-foreground">Installed units</h2>
+              <p className="text-4xl font-semibold tracking-tight">{machineCount}</p>
+              <p className="text-base text-muted-foreground">{machineCount === 1 ? "Machine in the field" : "Machines in the field"}</p>
+              <Link href="/app/units" className="mt-auto text-base font-medium text-primary underline-offset-4 hover:underline">
                 Install a unit
               </Link>
             </CardContent>
           </Card>
-          <Card>
-            <CardHeader>
-              <h2 className="text-xl font-semibold">Visits</h2>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-3">
-              <p className="text-base">
-                {attentionCount === 0
-                  ? "None due soon"
-                  : attentionCount === 1
-                    ? "1 due or overdue"
-                    : `${attentionCount} due or overdue`}
-              </p>
-              <Link href="/app/visits" className="text-base text-primary underline-offset-4 hover:underline">
+          <Card className="h-full">
+            <CardContent className="flex h-full flex-col gap-3">
+              <h2 className="text-sm font-medium text-muted-foreground">Needs attention</h2>
+              <p className="text-4xl font-semibold tracking-tight">{attentionCount}</p>
+              <p className="text-base text-muted-foreground">{attentionCount === 0 ? "None due soon" : "Due or overdue"}</p>
+              <Link href="/app/visits" className="mt-auto text-base font-medium text-primary underline-offset-4 hover:underline">
                 Open visits
               </Link>
             </CardContent>
@@ -106,13 +95,13 @@ const HomePage = async () => {
       {profile.role === "platform_admin" ? (
         <Card>
           <CardHeader>
-            <h2 className="text-xl font-semibold">Businesses</h2>
+            <h2 className="text-lg font-semibold tracking-tight">Businesses</h2>
           </CardHeader>
           <CardContent>
             {tenantsResult?.error ? (
               <p className="text-base text-muted-foreground">The business list could not be loaded.</p>
             ) : tenantsResult?.data && tenantsResult.data.length > 0 ? (
-              <table className="w-full text-left text-base">
+              <table className="data-table w-full text-left text-base">
                 <caption className="sr-only">Businesses you can support</caption>
                 <thead>
                   <tr className="border-b border-border">

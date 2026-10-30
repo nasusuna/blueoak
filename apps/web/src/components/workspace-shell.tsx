@@ -3,15 +3,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { signOut } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
-
-const links = [
-  { href: "/app", label: "Home" },
-  { href: "/app/customers", label: "Customers" },
-  { href: "/app/equipment", label: "Equipment" },
-  { href: "/app/chemicals", label: "Chemicals" },
-  { href: "/app/units", label: "Installed units" },
-  { href: "/app/visits", label: "Visits" },
-];
+import { WorkspaceNav } from "@/components/workspace-nav";
 
 export const WorkspaceShell = ({
   role,
@@ -22,31 +14,29 @@ export const WorkspaceShell = ({
   updates?: ReactNode;
   children: ReactNode;
 }) => {
-  const showMasters = role === "owner" || role === "technician";
+  const showNav = role === "owner" || role === "technician";
 
   return (
     <div className="min-h-dvh">
-      <header className="border-b border-border bg-card">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-4">
-          <p className="text-base font-semibold">Service App</p>
+      <header className="sticky top-0 z-30 border-b border-border/80 bg-card/90 backdrop-blur-md">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
+          <Link href="/app" className="flex items-center gap-2.5">
+            <span className="grid size-9 place-items-center rounded-lg bg-primary text-sm font-semibold text-primary-foreground">BO</span>
+            <span className="text-base font-semibold tracking-tight">Blue Oak</span>
+          </Link>
           <form action={signOut}>
-            <Button type="submit" variant="outline">
+            <Button type="submit" variant="outline" size="sm">
               Sign out
             </Button>
           </form>
         </div>
-        {showMasters ? (
-          <nav aria-label="Workspace" className="mx-auto flex max-w-5xl flex-wrap gap-x-5 gap-y-2 px-4 pb-4 text-base">
-            {links.map((link) => (
-              <Link key={link.href} href={link.href} className="underline-offset-4 hover:underline">
-                {link.label}
-              </Link>
-            ))}
-            {updates}
-          </nav>
+        {showNav ? (
+          <div className="mx-auto max-w-6xl px-4 pb-3">
+            <WorkspaceNav updates={updates} />
+          </div>
         ) : null}
       </header>
-      <main className="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-8">{children}</main>
+      <main className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8">{children}</main>
     </div>
   );
 };

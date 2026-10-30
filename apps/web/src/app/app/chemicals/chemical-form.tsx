@@ -6,6 +6,7 @@ import { createChemical } from "@/actions/catalog";
 import type { FormState } from "@/actions/customers";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Select } from "@/components/ui/select";
 
 const categories: { value: ChemicalCategory; label: string }[] = [
   { value: "reagents", label: "Reagents" },
@@ -14,8 +15,6 @@ const categories: { value: ChemicalCategory; label: string }[] = [
   { value: "rapid_cards", label: "Rapid cards" },
   { value: "consumables", label: "Consumables" },
 ];
-
-const selectClassName = "h-11 rounded-md border border-input bg-background px-3 text-base";
 
 const initialState: FormState = { error: null };
 
@@ -41,11 +40,10 @@ export const ChemicalForm = ({ chemicals }: { chemicals: Chemical[] }) => {
     <form action={formAction} className="grid gap-4 sm:grid-cols-2">
       <div className="flex flex-col gap-2">
         <Label htmlFor="chemical-category">Category</Label>
-        <select
+        <Select
           id="chemical-category"
           name="category"
           required
-          className={selectClassName}
           value={category}
           onChange={(event) => handleCategoryChange(event.target.value as ChemicalCategory)}
         >
@@ -54,15 +52,14 @@ export const ChemicalForm = ({ chemicals }: { chemicals: Chemical[] }) => {
               {item.label}
             </option>
           ))}
-        </select>
+        </Select>
       </div>
       <div className="flex flex-col gap-2">
         <Label htmlFor="chemical-name">Name</Label>
-        <select
+        <Select
           id="chemical-name"
           name="name"
           required
-          className={selectClassName}
           value={names.length === 0 ? "" : name}
           disabled={names.length === 0}
           onChange={(event) => setName(event.target.value)}
@@ -76,7 +73,7 @@ export const ChemicalForm = ({ chemicals }: { chemicals: Chemical[] }) => {
               </option>
             ))
           )}
-        </select>
+        </Select>
       </div>
       {state.error ? (
         <p role="alert" className="text-base text-destructive sm:col-span-2">

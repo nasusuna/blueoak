@@ -7,12 +7,12 @@ import { installUnit } from "@/actions/units";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select } from "@/components/ui/select";
+import { formatDisplayDate } from "@/lib/format";
 
 type Option = { id: string; name: string };
 
 const initialState: FormState = { error: null };
-
-const fieldClass = "h-11 rounded-md border border-input bg-background px-3 text-base";
 
 export const InstallForm = ({
   customers = [],
@@ -40,7 +40,7 @@ export const InstallForm = ({
       ) : (
         <div className="flex flex-col gap-2">
           <Label htmlFor="customer_id">Customer</Label>
-          <select id="customer_id" name="customer_id" required className={fieldClass} defaultValue="">
+          <Select id="customer_id" name="customer_id" required defaultValue="">
             <option value="" disabled>
               Choose a customer
             </option>
@@ -49,12 +49,12 @@ export const InstallForm = ({
                 {customer.name}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
       )}
       <div className="flex flex-col gap-2">
         <Label htmlFor="equipment_type_id">Equipment type</Label>
-        <select id="equipment_type_id" name="equipment_type_id" required className={fieldClass} defaultValue="">
+        <Select id="equipment_type_id" name="equipment_type_id" required defaultValue="">
           <option value="" disabled>
             Choose a type
           </option>
@@ -62,8 +62,8 @@ export const InstallForm = ({
             <option key={item.id} value={item.id}>
               {item.name}
             </option>
-          ))}
-        </select>
+            ))}
+        </Select>
       </div>
       <div className="flex flex-col gap-2">
         <Label htmlFor="make">Make</Label>
@@ -93,16 +93,15 @@ export const InstallForm = ({
       </div>
       <div className="flex flex-col gap-2">
         <Label htmlFor="pmd_interval_months">PMD interval</Label>
-        <select
+        <Select
           id="pmd_interval_months"
           name="pmd_interval_months"
-          className={fieldClass}
           value={interval}
           onChange={(event) => setInterval(event.target.value === "3" ? "3" : "6")}
         >
           <option value="6">6 months</option>
           <option value="3">3 months</option>
-        </select>
+        </Select>
       </div>
       <div className="flex flex-col gap-2">
         <Label htmlFor="pmd_start_date">PMD start date</Label>
@@ -115,7 +114,7 @@ export const InstallForm = ({
           onChange={(event) => setStartDate(event.target.value)}
         />
       </div>
-      <p className="text-base sm:col-span-2">First preventive maintenance is due on {dueDate}.</p>
+      <p className="text-base text-muted-foreground sm:col-span-2">First preventive maintenance is due on {dueDate ? formatDisplayDate(dueDate) : "—"}.</p>
       {state.error ? (
         <p role="alert" className="text-base text-destructive sm:col-span-2">
           {state.error}

@@ -1,5 +1,6 @@
 import type { ChemicalCategory } from "@service-app/core";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
 import { isStaff, loadWorkspace } from "@/lib/session";
 import { ChemicalForm } from "./chemical-form";
 
@@ -23,10 +24,10 @@ const ChemicalsPage = async () => {
 
   return (
     <>
-      <h1 className="text-2xl font-semibold">Chemicals</h1>
+      <PageHeader title="Chemicals" description="Choose a category, then the chemical name, and save it to the master list." />
       <Card>
         <CardHeader>
-          <h2 className="text-xl font-semibold">Add a chemical</h2>
+          <h2 className="text-lg font-semibold tracking-tight">Add a chemical</h2>
         </CardHeader>
         <CardContent>
           <ChemicalForm chemicals={rows} />
@@ -34,11 +35,11 @@ const ChemicalsPage = async () => {
       </Card>
       <Card>
         <CardHeader>
-          <h2 className="text-xl font-semibold">Master list</h2>
+          <h2 className="text-lg font-semibold tracking-tight">Master list</h2>
         </CardHeader>
         <CardContent>
           {rows.length > 0 ? (
-            <table className="w-full text-left text-base">
+            <table className="data-table w-full text-left text-base">
               <caption className="sr-only">Chemicals</caption>
               <thead>
                 <tr className="border-b border-border">

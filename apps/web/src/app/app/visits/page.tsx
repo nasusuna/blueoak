@@ -1,15 +1,11 @@
-import { istToday, pmdStatus, tenantSettingsSchema, type PmdStatus } from "@service-app/core";
+import { istToday, pmdStatus, tenantSettingsSchema } from "@service-app/core";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { formatDisplayDate } from "@/lib/format";
 import { isStaff, loadWorkspace } from "@/lib/session";
 import { SkipForm } from "./skip-form";
 import { VisitForm, type VisitUnit } from "./visit-form";
-
-const statusLabel: Record<PmdStatus, string> = {
-  overdue: "Overdue",
-  due: "Due soon",
-  scheduled: "Scheduled",
-  completed: "Completed",
-};
 
 const visitLabel = {
   installation: "Installation",
@@ -64,15 +60,15 @@ const VisitsPage = async () => {
 
   return (
     <>
-      <h1 className="text-2xl font-semibold">Visits</h1>
+      <PageHeader title="Visits" description="Due maintenance, recorded visits, and skipped dates." />
       <Card>
         <CardHeader>
-          <h2 className="text-xl font-semibold">Due maintenance</h2>
+          <h2 className="text-lg font-semibold tracking-tight">Due maintenance</h2>
         </CardHeader>
         <CardContent>
           {dueRows.length > 0 ? (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[36rem] text-left text-base">
+              <table className="data-table w-full min-w-[36rem] text-left text-base">
                 <caption className="sr-only">Open preventive-maintenance dates</caption>
                 <thead>
                   <tr className="border-b border-border">
@@ -85,9 +81,9 @@ const VisitsPage = async () => {
                   {dueRows.map((row) => (
                     <tr key={row.id} className="border-b border-border last:border-0">
                       <td className="py-3 pr-4">{row.label}</td>
-                      <td className="py-3 pr-4">{row.dueDate}</td>
+                      <td className="py-3 pr-4">{formatDisplayDate(row.dueDate)}</td>
                       <td className="py-3">
-                        {statusLabel[pmdStatus({ dueDate: row.dueDate, completedOn: null, today, reminderDays })]}
+                        <StatusBadge status={pmdStatus({ dueDate: row.dueDate, completedOn: null, today, reminderDays })} />
                       </td>
                     </tr>
                   ))}
@@ -101,7 +97,7 @@ const VisitsPage = async () => {
       </Card>
       <Card>
         <CardHeader>
-          <h2 className="text-xl font-semibold">Record a visit</h2>
+          <h2 className="text-lg font-semibold tracking-tight">Record a visit</h2>
         </CardHeader>
         <CardContent>
           {visitUnits.length > 0 ? (
@@ -113,7 +109,7 @@ const VisitsPage = async () => {
       </Card>
       <Card>
         <CardHeader>
-          <h2 className="text-xl font-semibold">Skip a due date</h2>
+          <h2 className="text-lg font-semibold tracking-tight">Skip a due date</h2>
         </CardHeader>
         <CardContent>
           {skipUnits.length > 0 ? (
@@ -125,12 +121,12 @@ const VisitsPage = async () => {
       </Card>
       <Card>
         <CardHeader>
-          <h2 className="text-xl font-semibold">Recent visits</h2>
+          <h2 className="text-lg font-semibold tracking-tight">Recent visits</h2>
         </CardHeader>
         <CardContent>
           {events && events.length > 0 ? (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[40rem] text-left text-base">
+              <table className="data-table w-full min-w-[40rem] text-left text-base">
                 <caption className="sr-only">Recent service visits</caption>
                 <thead>
                   <tr className="border-b border-border">
@@ -143,7 +139,7 @@ const VisitsPage = async () => {
                 <tbody>
                   {events.map((event) => (
                     <tr key={event.id} className="border-b border-border last:border-0">
-                      <td className="py-3 pr-4">{event.event_date}</td>
+                      <td className="py-3 pr-4">{formatDisplayDate(event.event_date)}</td>
                       <td className="py-3 pr-4">{visitLabel[event.type]}</td>
                       <td className="py-3 pr-4">{unitLabel.get(event.unit_id) ?? "—"}</td>
                       <td className="py-3">{event.work_done ?? event.complaint ?? "—"}</td>

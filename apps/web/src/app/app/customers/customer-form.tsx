@@ -97,13 +97,13 @@ export const AddCustomer = () => {
 
   return (
     <div className="flex flex-col gap-4">
-      <Button type="button" variant={open ? "outline" : "default"} aria-expanded={open} onClick={() => setOpen((current) => !current)}>
+      <Button type="button" className="self-start" variant={open ? "outline" : "default"} aria-expanded={open} onClick={() => setOpen((current) => !current)}>
         {open ? "Hide form" : "Add a customer"}
       </Button>
       {open ? (
         <Card>
           <CardHeader>
-            <h2 className="text-xl font-semibold">Add a lab or hospital</h2>
+            <h2 className="text-lg font-semibold tracking-tight">Add a lab or hospital</h2>
           </CardHeader>
           <CardContent>
             <CustomerForm />

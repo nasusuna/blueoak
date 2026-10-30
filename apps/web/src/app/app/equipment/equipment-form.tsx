@@ -5,6 +5,7 @@ import { createEquipmentType } from "@/actions/catalog";
 import type { FormState } from "@/actions/customers";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Select } from "@/components/ui/select";
 
 const knownCategories = [
   { value: "biochemistry", label: "Biochemistry" },
@@ -17,8 +18,6 @@ const knownCategories = [
 ];
 
 const categoryLabel: Record<string, string> = Object.fromEntries(knownCategories.map((item) => [item.value, item.label]));
-
-const selectClassName = "h-11 rounded-md border border-input bg-background px-3 text-base";
 
 const labelFor = (category: string) => categoryLabel[category] ?? category;
 
@@ -50,11 +49,10 @@ export const EquipmentForm = ({ equipment }: { equipment: Equipment[] }) => {
     <form action={formAction} className="grid gap-4 sm:grid-cols-2">
       <div className="flex flex-col gap-2">
         <Label htmlFor="equipment-category">Category</Label>
-        <select
+        <Select
           id="equipment-category"
           name="category"
           required
-          className={selectClassName}
           value={category}
           onChange={(event) => handleCategoryChange(event.target.value)}
         >
@@ -63,15 +61,14 @@ export const EquipmentForm = ({ equipment }: { equipment: Equipment[] }) => {
               {item.label}
             </option>
           ))}
-        </select>
+        </Select>
       </div>
       <div className="flex flex-col gap-2">
         <Label htmlFor="equipment-name">Name</Label>
-        <select
+        <Select
           id="equipment-name"
           name="name"
           required
-          className={selectClassName}
           value={names.length === 0 ? "" : name}
           disabled={names.length === 0}
           onChange={(event) => setName(event.target.value)}
@@ -85,7 +82,7 @@ export const EquipmentForm = ({ equipment }: { equipment: Equipment[] }) => {
               </option>
             ))
           )}
-        </select>
+        </Select>
       </div>
       {state.error ? (
         <p role="alert" className="text-base text-destructive sm:col-span-2">

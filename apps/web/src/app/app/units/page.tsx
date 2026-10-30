@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
+import { formatDisplayDate } from "@/lib/format";
 import { isStaff, loadWorkspace } from "@/lib/session";
 import { InstallForm } from "./install-form";
 
@@ -34,10 +36,10 @@ const UnitsPage = async () => {
 
   return (
     <>
-      <h1 className="text-2xl font-semibold">Installed units</h1>
+      <PageHeader title="Installed units" description="Machines in the field and the next preventive visit." />
       <Card>
         <CardHeader>
-          <h2 className="text-xl font-semibold">Install a machine</h2>
+          <h2 className="text-lg font-semibold tracking-tight">Install a machine</h2>
         </CardHeader>
         <CardContent>
           {canInstall ? (
@@ -52,12 +54,12 @@ const UnitsPage = async () => {
       </Card>
       <Card>
         <CardHeader>
-          <h2 className="text-xl font-semibold">Machines</h2>
+          <h2 className="text-lg font-semibold tracking-tight">Machines</h2>
         </CardHeader>
         <CardContent>
           {units && units.length > 0 ? (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[40rem] text-left text-base">
+              <table className="data-table w-full min-w-[40rem] text-left text-base">
                 <caption className="sr-only">Installed units</caption>
                 <thead>
                   <tr className="border-b border-border">
@@ -73,7 +75,7 @@ const UnitsPage = async () => {
                     <tr key={unit.id} className="border-b border-border last:border-0">
                       <td className="py-3 pr-4">{unit.serial_no}</td>
                       <td className="py-3 pr-4">
-                        <Link href={`/app/customers/${unit.customer_id}`} className="text-primary underline-offset-4 hover:underline">
+                        <Link href={`/app/customers/${unit.customer_id}`} className="font-medium text-primary underline-offset-4 hover:underline">
                           {customerName.get(unit.customer_id) ?? "—"}
                         </Link>
                       </td>
@@ -81,8 +83,8 @@ const UnitsPage = async () => {
                         {equipmentName.get(unit.equipment_type_id) ?? "—"}
                         {unit.make || unit.model ? ` · ${[unit.make, unit.model].filter(Boolean).join(" ")}` : ""}
                       </td>
-                      <td className="py-3 pr-4">{unit.installed_on}</td>
-                      <td className="py-3">{nextDue.get(unit.id) ?? "—"}</td>
+                      <td className="py-3 pr-4">{formatDisplayDate(unit.installed_on)}</td>
+                      <td className="py-3">{nextDue.get(unit.id) ? formatDisplayDate(nextDue.get(unit.id) ?? "") : "—"}</td>
                     </tr>
                   ))}
                 </tbody>

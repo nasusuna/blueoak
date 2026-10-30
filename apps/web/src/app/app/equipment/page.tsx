@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
 import { isStaff, loadWorkspace } from "@/lib/session";
 import { EquipmentForm } from "./equipment-form";
 
@@ -26,10 +27,10 @@ const EquipmentPage = async () => {
 
   return (
     <>
-      <h1 className="text-2xl font-semibold">Equipment</h1>
+      <PageHeader title="Equipment" description="Choose a category, then the machine name, and save it to the master list." />
       <Card>
         <CardHeader>
-          <h2 className="text-xl font-semibold">Add an equipment type</h2>
+          <h2 className="text-lg font-semibold tracking-tight">Add an equipment type</h2>
         </CardHeader>
         <CardContent>
           <EquipmentForm equipment={rows} />
@@ -37,11 +38,11 @@ const EquipmentPage = async () => {
       </Card>
       <Card>
         <CardHeader>
-          <h2 className="text-xl font-semibold">Master list</h2>
+          <h2 className="text-lg font-semibold tracking-tight">Master list</h2>
         </CardHeader>
         <CardContent>
           {rows.length > 0 ? (
-            <table className="w-full text-left text-base">
+            <table className="data-table w-full text-left text-base">
               <caption className="sr-only">Equipment types</caption>
               <thead>
                 <tr className="border-b border-border">

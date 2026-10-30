@@ -12,7 +12,7 @@ export const AddMachine = ({ customerId, equipmentTypes }: { customerId: string;
 
   return (
     <div className="mt-4 flex flex-col gap-4">
-      <Button type="button" variant={open ? "outline" : "default"} aria-expanded={open} onClick={() => setOpen((current) => !current)}>
+      <Button type="button" className="self-start" variant={open ? "outline" : "default"} aria-expanded={open} onClick={() => setOpen((current) => !current)}>
         {open ? "Hide form" : "Add a machine"}
       </Button>
       {open && equipmentTypes.length > 0 ? <InstallForm customerId={customerId} equipmentTypes={equipmentTypes} /> : null}

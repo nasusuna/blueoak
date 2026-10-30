@@ -1,17 +1,12 @@
 import Link from "next/link";
-import { istToday, pmdStatus, tenantSettingsSchema, type PmdStatus } from "@service-app/core";
+import { istToday, pmdStatus, tenantSettingsSchema } from "@service-app/core";
 import { updateCustomer } from "@/actions/customers";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { formatDisplayDate } from "@/lib/format";
 import { isStaff, loadWorkspace } from "@/lib/session";
 import { CustomerForm } from "../customer-form";
 import { AddMachine } from "./add-machine";
-
-const statusLabel: Record<PmdStatus, string> = {
-  overdue: "Overdue",
-  due: "Due soon",
-  scheduled: "Scheduled",
-  completed: "Completed",
-};
 
 const visitLabel = {
   installation: "Installation",
@@ -36,7 +31,7 @@ const CustomerPage = async ({ params }: { params: Promise<{ id: string }> }) => 
   if (!customer) {
     return (
       <>
-        <h1 className="text-2xl font-semibold">Customer</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">Customer</h1>
         <p className="text-base text-muted-foreground">This customer was not found.</p>
         <Link href="/app/customers" className="text-base text-primary underline-offset-4 hover:underline">
           Back to customers
@@ -98,10 +93,10 @@ const CustomerPage = async ({ params }: { params: Promise<{ id: string }> }) => 
   return (
     <>
       <div className="flex flex-col gap-2">
-        <Link href="/app/customers" className="text-base text-primary underline-offset-4 hover:underline">
+        <Link href="/app/customers" className="text-sm font-medium text-primary underline-offset-4 hover:underline">
           Customers
         </Link>
-        <h1 className="text-2xl font-semibold">{customer.name}</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">{customer.name}</h1>
         <p className="text-base text-muted-foreground">
           {machines.length === 1 ? "1 machine" : `${machines.length} machines`}
           {attentionCount === 0 ? "" : attentionCount === 1 ? " · 1 due or overdue" : ` · ${attentionCount} due or overdue`}
@@ -110,7 +105,7 @@ const CustomerPage = async ({ params }: { params: Promise<{ id: string }> }) => 
 
       <Card>
         <CardHeader>
-          <h2 className="text-xl font-semibold">Details</h2>
+          <h2 className="text-lg font-semibold tracking-tight">Details</h2>
         </CardHeader>
         <CardContent>
           <CustomerForm
@@ -135,12 +130,12 @@ const CustomerPage = async ({ params }: { params: Promise<{ id: string }> }) => 
 
       <Card>
         <CardHeader>
-          <h2 className="text-xl font-semibold">Machines</h2>
+          <h2 className="text-lg font-semibold tracking-tight">Machines</h2>
         </CardHeader>
         <CardContent>
           {machines.length > 0 ? (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[40rem] text-left text-base">
+              <table className="data-table w-full min-w-[40rem] text-left text-base">
                 <caption className="sr-only">Machines at this customer</caption>
                 <thead>
                   <tr className="border-b border-border">
@@ -159,10 +154,17 @@ const CustomerPage = async ({ params }: { params: Promise<{ id: string }> }) => 
                         {equipmentName.get(unit.equipment_type_id) ?? "—"}
                         {unit.make || unit.model ? ` · ${[unit.make, unit.model].filter(Boolean).join(" ")}` : ""}
                       </td>
-                      <td className="py-3 pr-4">{unit.installed_on}</td>
+                      <td className="py-3 pr-4">{formatDisplayDate(unit.installed_on)}</td>
                       <td className="py-3 pr-4">{unit.pmd_interval_months} months</td>
                       <td className="py-3">
-                        {unit.dueDate ? `${unit.dueDate} · ${statusLabel[unit.status ?? "scheduled"]}` : "—"}
+                        {unit.dueDate && unit.status ? (
+                          <span className="inline-flex flex-wrap items-center gap-2">
+                            {formatDisplayDate(unit.dueDate)}
+                            <StatusBadge status={unit.status} />
+                          </span>
+                        ) : (
+                          "—"
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -178,12 +180,12 @@ const CustomerPage = async ({ params }: { params: Promise<{ id: string }> }) => 
 
       <Card>
         <CardHeader>
-          <h2 className="text-xl font-semibold">Visits</h2>
+          <h2 className="text-lg font-semibold tracking-tight">Visits</h2>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           {events && events.length > 0 ? (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[36rem] text-left text-base">
+              <table className="data-table w-full min-w-[36rem] text-left text-base">
                 <caption className="sr-only">Visits for this customer</caption>
                 <thead>
                   <tr className="border-b border-border">
@@ -196,7 +198,7 @@ const CustomerPage = async ({ params }: { params: Promise<{ id: string }> }) => 
                 <tbody>
                   {events.map((event) => (
                     <tr key={event.id} className="border-b border-border last:border-0">
-                      <td className="py-3 pr-4">{event.event_date}</td>
+                      <td className="py-3 pr-4">{formatDisplayDate(event.event_date)}</td>
                       <td className="py-3 pr-4">{visitLabel[event.type]}</td>
                       <td className="py-3 pr-4">{serialByUnit.get(event.unit_id) ?? "—"}</td>
                       <td className="py-3">{event.work_done ?? event.complaint ?? "—"}</td>
@@ -212,12 +214,12 @@ const CustomerPage = async ({ params }: { params: Promise<{ id: string }> }) => 
             <ul className="flex flex-col gap-2 text-base">
               {skips.map((row) => (
                 <li key={row.id}>
-                  {serialByUnit.get(row.unit_id) ?? "Machine"} due {row.due_date} was skipped on {row.completed_on}: {row.skip_reason}
+                  {serialByUnit.get(row.unit_id) ?? "Machine"} due {formatDisplayDate(row.due_date)} was skipped on {row.completed_on ? formatDisplayDate(row.completed_on) : "—"}: {row.skip_reason}
                 </li>
               ))}
             </ul>
           ) : null}
-          <Link href="/app/visits" className="text-base text-primary underline-offset-4 hover:underline">
+          <Link href="/app/visits" className="text-base font-medium text-primary underline-offset-4 hover:underline">
             Record a visit
           </Link>
         </CardContent>

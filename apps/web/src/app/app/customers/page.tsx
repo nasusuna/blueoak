@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
 import { isStaff, loadWorkspace } from "@/lib/session";
 import { AddCustomer } from "./customer-form";
 
@@ -17,11 +18,11 @@ const CustomersPage = async () => {
 
   return (
     <>
-      <h1 className="text-2xl font-semibold">Customers</h1>
+      <PageHeader title="Customers" description="Labs and hospitals this business services." />
       <Card>
         <CardContent className="pt-6">
           {customers && customers.length > 0 ? (
-            <table className="w-full text-left text-base">
+            <table className="data-table w-full text-left text-base">
               <caption className="sr-only">Customers in this business</caption>
               <thead>
                 <tr className="border-b border-border">
@@ -35,7 +36,7 @@ const CustomersPage = async () => {
                 {customers.map((customer) => (
                   <tr key={customer.id} className="border-b border-border last:border-0">
                     <td className="py-3 pr-4">
-                      <Link href={`/app/customers/${customer.id}`} className="text-primary underline-offset-4 hover:underline">
+                      <Link href={`/app/customers/${customer.id}`} className="font-medium text-primary underline decoration-primary/30 underline-offset-4 hover:decoration-primary">
                         {customer.name}
                       </Link>
                     </td>
