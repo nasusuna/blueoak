@@ -1,17 +1,11 @@
 import { istToday, pmdStatus, tenantSettingsSchema } from "@service-app/core";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
-import { StatusBadge } from "@/components/ui/status-badge";
+import { StatusBadge, VisitTypeBadge } from "@/components/ui/status-badge";
 import { formatDisplayDate } from "@/lib/format";
 import { isStaff, loadWorkspace } from "@/lib/session";
 import { SkipForm } from "./skip-form";
 import { VisitForm, type VisitUnit } from "./visit-form";
-
-const visitLabel = {
-  installation: "Installation",
-  breakdown: "Breakdown",
-  preventive: "Preventive",
-} as const;
 
 const VisitsPage = async () => {
   const { supabase, profile } = await loadWorkspace();
@@ -78,15 +72,22 @@ const VisitsPage = async () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {dueRows.map((row) => (
-                    <tr key={row.id} className="border-b border-border last:border-0">
-                      <td className="py-3 pr-4">{row.label}</td>
-                      <td className="py-3 pr-4">{formatDisplayDate(row.dueDate)}</td>
-                      <td className="py-3">
-                        <StatusBadge status={pmdStatus({ dueDate: row.dueDate, completedOn: null, today, reminderDays })} />
-                      </td>
-                    </tr>
-                  ))}
+                  {dueRows.map((row) => {
+                    const status = pmdStatus({ dueDate: row.dueDate, completedOn: null, today, reminderDays });
+
+                    return (
+                      <tr
+                        key={row.id}
+                        className={`border-b border-border last:border-0 ${status === "overdue" ? "bg-rose-50" : status === "due" ? "bg-amber-50" : ""}`}
+                      >
+                        <td className="py-3 pr-4 font-medium">{row.label}</td>
+                        <td className="py-3 pr-4">{formatDisplayDate(row.dueDate)}</td>
+                        <td className="py-3">
+                          <StatusBadge status={status} />
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -140,7 +141,9 @@ const VisitsPage = async () => {
                   {events.map((event) => (
                     <tr key={event.id} className="border-b border-border last:border-0">
                       <td className="py-3 pr-4">{formatDisplayDate(event.event_date)}</td>
-                      <td className="py-3 pr-4">{visitLabel[event.type]}</td>
+                      <td className="py-3 pr-4">
+                        <VisitTypeBadge type={event.type} />
+                      </td>
                       <td className="py-3 pr-4">{unitLabel.get(event.unit_id) ?? "—"}</td>
                       <td className="py-3">{event.work_done ?? event.complaint ?? "—"}</td>
                     </tr>

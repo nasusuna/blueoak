@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { TextLink } from "@/components/ui/text-link";
 import { InstallForm } from "@/app/app/units/install-form";
 
 type EquipmentType = { id: string; name: string };
@@ -19,9 +19,7 @@ export const AddMachine = ({ customerId, equipmentTypes }: { customerId: string;
       {open && equipmentTypes.length === 0 ? (
         <p className="text-base text-muted-foreground">
           Add an{" "}
-          <Link className="text-primary underline-offset-4 hover:underline" href="/app/equipment">
-            equipment type
-          </Link>{" "}
+          <TextLink href="/app/equipment">equipment type</TextLink>{" "}
           before installing a machine.
         </p>
       ) : null}

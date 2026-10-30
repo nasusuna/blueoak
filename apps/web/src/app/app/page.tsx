@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { istToday, pmdStatus, tenantSettingsSchema } from "@service-app/core";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { TextLink } from "@/components/ui/text-link";
 import { isStaff, loadWorkspace } from "@/lib/session";
 
 const roleLabel = {
@@ -39,7 +39,6 @@ const HomePage = async () => {
   return (
     <>
       <div className="flex flex-col gap-1">
-        <p className="text-sm font-medium text-primary">{tenant?.name ?? "Blue Oak"}</p>
         <h1 className="text-3xl font-semibold tracking-tight">{profile.full_name}</h1>
         <p className="text-base text-muted-foreground">{roleLabel[profile.role]}</p>
       </div>
@@ -59,34 +58,34 @@ const HomePage = async () => {
 
       {isStaff(profile.role) ? (
         <div className="grid gap-4 sm:grid-cols-3">
-          <Card className="h-full">
+          <Card className="h-full border-blue-300 bg-blue-100">
             <CardContent className="flex h-full flex-col gap-3">
-              <h2 className="text-sm font-medium text-muted-foreground">Customers</h2>
-              <p className="text-4xl font-semibold tracking-tight">{labCount}</p>
-              <p className="text-base text-muted-foreground">{labCount === 1 ? "Lab or hospital" : "Labs and hospitals"}</p>
-              <Link href="/app/customers" className="mt-auto text-base font-medium text-primary underline-offset-4 hover:underline">
+              <h2 className="text-sm font-semibold text-blue-950">Customers</h2>
+              <p className="text-4xl font-bold tracking-tight text-blue-950">{labCount}</p>
+              <p className="text-base text-blue-900">{labCount === 1 ? "Lab or hospital" : "Labs and hospitals"}</p>
+              <TextLink href="/app/customers" className="mt-auto text-lg">
                 Open customers
-              </Link>
+              </TextLink>
             </CardContent>
           </Card>
-          <Card className="h-full">
+          <Card className="h-full border-amber-300 bg-amber-100">
             <CardContent className="flex h-full flex-col gap-3">
-              <h2 className="text-sm font-medium text-muted-foreground">Installed units</h2>
-              <p className="text-4xl font-semibold tracking-tight">{machineCount}</p>
-              <p className="text-base text-muted-foreground">{machineCount === 1 ? "Machine in the field" : "Machines in the field"}</p>
-              <Link href="/app/units" className="mt-auto text-base font-medium text-primary underline-offset-4 hover:underline">
+              <h2 className="text-sm font-semibold text-amber-950">Installed units</h2>
+              <p className="text-4xl font-bold tracking-tight text-amber-950">{machineCount}</p>
+              <p className="text-base text-amber-900">{machineCount === 1 ? "Machine in the field" : "Machines in the field"}</p>
+              <TextLink href="/app/units" className="mt-auto text-lg">
                 Install a unit
-              </Link>
+              </TextLink>
             </CardContent>
           </Card>
-          <Card className="h-full">
+          <Card className="h-full border-rose-300 bg-rose-100">
             <CardContent className="flex h-full flex-col gap-3">
-              <h2 className="text-sm font-medium text-muted-foreground">Needs attention</h2>
-              <p className="text-4xl font-semibold tracking-tight">{attentionCount}</p>
-              <p className="text-base text-muted-foreground">{attentionCount === 0 ? "None due soon" : "Due or overdue"}</p>
-              <Link href="/app/visits" className="mt-auto text-base font-medium text-primary underline-offset-4 hover:underline">
+              <h2 className="text-sm font-semibold text-rose-950">Needs attention</h2>
+              <p className="text-4xl font-bold tracking-tight text-rose-950">{attentionCount}</p>
+              <p className="text-base text-rose-900">{attentionCount === 0 ? "None due soon" : "Due or overdue"}</p>
+              <TextLink href="/app/visits" className="mt-auto text-lg">
                 Open visits
-              </Link>
+              </TextLink>
             </CardContent>
           </Card>
         </div>

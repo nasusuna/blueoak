@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
+import { TextLink } from "@/components/ui/text-link";
 import { isStaff, loadWorkspace } from "@/lib/session";
 import { AddCustomer } from "./customer-form";
 
@@ -36,9 +36,7 @@ const CustomersPage = async () => {
                 {customers.map((customer) => (
                   <tr key={customer.id} className="border-b border-border last:border-0">
                     <td className="py-3 pr-4">
-                      <Link href={`/app/customers/${customer.id}`} className="font-medium text-primary underline decoration-primary/30 underline-offset-4 hover:decoration-primary">
-                        {customer.name}
-                      </Link>
+                      <TextLink href={`/app/customers/${customer.id}`}>{customer.name}</TextLink>
                     </td>
                     <td className="py-3 pr-4">{customer.city ?? "—"}</td>
                     <td className="py-3 pr-4">{customer.mobile ?? "—"}</td>

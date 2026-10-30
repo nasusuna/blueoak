@@ -1,6 +1,8 @@
-import Link from "next/link";
+import { istToday, pmdStatus, tenantSettingsSchema } from "@service-app/core";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { TextLink } from "@/components/ui/text-link";
 import { formatDisplayDate } from "@/lib/format";
 import { isStaff, loadWorkspace } from "@/lib/session";
 import { InstallForm } from "./install-form";
@@ -12,12 +14,16 @@ const UnitsPage = async () => {
     return <p className="text-base text-muted-foreground">Installed units are managed by the business owner and technicians.</p>;
   }
 
-  const [{ data: units }, { data: customers }, { data: equipmentTypes }, { data: schedules }] = await Promise.all([
+  const [{ data: tenant }, { data: units }, { data: customers }, { data: equipmentTypes }, { data: schedules }] = await Promise.all([
+    supabase.from("tenants").select("settings").eq("id", profile.tenant_id).maybeSingle(),
     supabase.from("units").select("id, serial_no, make, model, installed_on, pmd_interval_months, customer_id, equipment_type_id").order("installed_on", { ascending: false }),
     supabase.from("customers").select("id, name").order("name"),
     supabase.from("equipment_types").select("id, name").order("name"),
     supabase.from("pmd_schedule").select("unit_id, due_date, completed_on"),
   ]);
+  const settings = tenantSettingsSchema.safeParse(tenant?.settings ?? {});
+  const reminderDays = settings.success ? settings.data.reminder_days : 7;
+  const today = istToday();
 
   const customerName = new Map((customers ?? []).map((customer) => [customer.id, customer.name]));
   const equipmentName = new Map((equipmentTypes ?? []).map((item) => [item.id, item.name]));
@@ -39,21 +45,6 @@ const UnitsPage = async () => {
       <PageHeader title="Installed units" description="Machines in the field and the next preventive visit." />
       <Card>
         <CardHeader>
-          <h2 className="text-lg font-semibold tracking-tight">Install a machine</h2>
-        </CardHeader>
-        <CardContent>
-          {canInstall ? (
-            <InstallForm customers={customers ?? []} equipmentTypes={equipmentTypes ?? []} />
-          ) : (
-            <p className="text-base text-muted-foreground">
-              Add a <Link className="text-primary underline-offset-4 hover:underline" href="/app/customers">customer</Link> and an{" "}
-              <Link className="text-primary underline-offset-4 hover:underline" href="/app/equipment">equipment type</Link> before installing a unit.
-            </p>
-          )}
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader>
           <h2 className="text-lg font-semibold tracking-tight">Machines</h2>
         </CardHeader>
         <CardContent>
@@ -71,27 +62,56 @@ const UnitsPage = async () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {units.map((unit) => (
-                    <tr key={unit.id} className="border-b border-border last:border-0">
-                      <td className="py-3 pr-4">{unit.serial_no}</td>
-                      <td className="py-3 pr-4">
-                        <Link href={`/app/customers/${unit.customer_id}`} className="font-medium text-primary underline-offset-4 hover:underline">
-                          {customerName.get(unit.customer_id) ?? "—"}
-                        </Link>
-                      </td>
-                      <td className="py-3 pr-4">
-                        {equipmentName.get(unit.equipment_type_id) ?? "—"}
-                        {unit.make || unit.model ? ` · ${[unit.make, unit.model].filter(Boolean).join(" ")}` : ""}
-                      </td>
-                      <td className="py-3 pr-4">{formatDisplayDate(unit.installed_on)}</td>
-                      <td className="py-3">{nextDue.get(unit.id) ? formatDisplayDate(nextDue.get(unit.id) ?? "") : "—"}</td>
-                    </tr>
-                  ))}
+                  {units.map((unit) => {
+                    const dueDate = nextDue.get(unit.id);
+                    const status = dueDate ? pmdStatus({ dueDate, completedOn: null, today, reminderDays }) : null;
+
+                    return (
+                      <tr
+                        key={unit.id}
+                        className={`border-b border-border last:border-0 ${status === "overdue" ? "bg-rose-50" : status === "due" ? "bg-amber-50" : ""}`}
+                      >
+                        <td className="py-3 pr-4 font-semibold">{unit.serial_no}</td>
+                        <td className="py-3 pr-4">
+                          <TextLink href={`/app/customers/${unit.customer_id}`}>{customerName.get(unit.customer_id) ?? "—"}</TextLink>
+                        </td>
+                        <td className="py-3 pr-4">
+                          {equipmentName.get(unit.equipment_type_id) ?? "—"}
+                          {unit.make || unit.model ? ` · ${[unit.make, unit.model].filter(Boolean).join(" ")}` : ""}
+                        </td>
+                        <td className="py-3 pr-4">{formatDisplayDate(unit.installed_on)}</td>
+                        <td className="py-3">
+                          {dueDate && status ? (
+                            <span className="inline-flex flex-wrap items-center gap-2">
+                              {formatDisplayDate(dueDate)}
+                              <StatusBadge status={status} />
+                            </span>
+                          ) : (
+                            "—"
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
           ) : (
             <p className="text-base text-muted-foreground">No units installed yet.</p>
+          )}
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <h2 className="text-lg font-semibold tracking-tight">Install a machine</h2>
+        </CardHeader>
+        <CardContent>
+          {canInstall ? (
+            <InstallForm customers={customers ?? []} equipmentTypes={equipmentTypes ?? []} />
+          ) : (
+            <p className="text-base text-muted-foreground">
+              Add a <TextLink href="/app/customers">customer</TextLink> and an <TextLink href="/app/equipment">equipment type</TextLink> before installing a unit.
+            </p>
           )}
         </CardContent>
       </Card>

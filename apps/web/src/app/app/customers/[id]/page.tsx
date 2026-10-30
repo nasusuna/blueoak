@@ -1,18 +1,12 @@
-import Link from "next/link";
 import { istToday, pmdStatus, tenantSettingsSchema } from "@service-app/core";
 import { updateCustomer } from "@/actions/customers";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { StatusBadge } from "@/components/ui/status-badge";
+import { StatusBadge, VisitTypeBadge } from "@/components/ui/status-badge";
+import { TextLink } from "@/components/ui/text-link";
 import { formatDisplayDate } from "@/lib/format";
 import { isStaff, loadWorkspace } from "@/lib/session";
 import { CustomerForm } from "../customer-form";
 import { AddMachine } from "./add-machine";
-
-const visitLabel = {
-  installation: "Installation",
-  breakdown: "Breakdown",
-  preventive: "Preventive",
-} as const;
 
 const CustomerPage = async ({ params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params;
@@ -33,9 +27,7 @@ const CustomerPage = async ({ params }: { params: Promise<{ id: string }> }) => 
       <>
         <h1 className="text-3xl font-semibold tracking-tight">Customer</h1>
         <p className="text-base text-muted-foreground">This customer was not found.</p>
-        <Link href="/app/customers" className="text-base text-primary underline-offset-4 hover:underline">
-          Back to customers
-        </Link>
+        <TextLink href="/app/customers">Back to customers</TextLink>
       </>
     );
   }
@@ -93,13 +85,19 @@ const CustomerPage = async ({ params }: { params: Promise<{ id: string }> }) => 
   return (
     <>
       <div className="flex flex-col gap-2">
-        <Link href="/app/customers" className="text-sm font-medium text-primary underline-offset-4 hover:underline">
+        <TextLink href="/app/customers" className="text-sm">
           Customers
-        </Link>
+        </TextLink>
         <h1 className="text-3xl font-semibold tracking-tight">{customer.name}</h1>
         <p className="text-base text-muted-foreground">
-          {machines.length === 1 ? "1 machine" : `${machines.length} machines`}
-          {attentionCount === 0 ? "" : attentionCount === 1 ? " · 1 due or overdue" : ` · ${attentionCount} due or overdue`}
+          {[
+            customer.contact_person,
+            customer.city,
+            machines.length === 1 ? "1 machine" : `${machines.length} machines`,
+            attentionCount === 0 ? null : attentionCount === 1 ? "1 due or overdue" : `${attentionCount} due or overdue`,
+          ]
+            .filter(Boolean)
+            .join(" · ")}
         </p>
       </div>
 
@@ -148,8 +146,11 @@ const CustomerPage = async ({ params }: { params: Promise<{ id: string }> }) => 
                 </thead>
                 <tbody>
                   {machines.map((unit) => (
-                    <tr key={unit.id} className="border-b border-border last:border-0">
-                      <td className="py-3 pr-4">{unit.serial_no}</td>
+                    <tr
+                      key={unit.id}
+                      className={`border-b border-border last:border-0 ${unit.status === "overdue" ? "bg-rose-50" : unit.status === "due" ? "bg-amber-50" : ""}`}
+                    >
+                      <td className="py-3 pr-4 font-semibold">{unit.serial_no}</td>
                       <td className="py-3 pr-4">
                         {equipmentName.get(unit.equipment_type_id) ?? "—"}
                         {unit.make || unit.model ? ` · ${[unit.make, unit.model].filter(Boolean).join(" ")}` : ""}
@@ -199,7 +200,9 @@ const CustomerPage = async ({ params }: { params: Promise<{ id: string }> }) => 
                   {events.map((event) => (
                     <tr key={event.id} className="border-b border-border last:border-0">
                       <td className="py-3 pr-4">{formatDisplayDate(event.event_date)}</td>
-                      <td className="py-3 pr-4">{visitLabel[event.type]}</td>
+                      <td className="py-3 pr-4">
+                        <VisitTypeBadge type={event.type} />
+                      </td>
                       <td className="py-3 pr-4">{serialByUnit.get(event.unit_id) ?? "—"}</td>
                       <td className="py-3">{event.work_done ?? event.complaint ?? "—"}</td>
                     </tr>
@@ -219,9 +222,7 @@ const CustomerPage = async ({ params }: { params: Promise<{ id: string }> }) => 
               ))}
             </ul>
           ) : null}
-          <Link href="/app/visits" className="text-base font-medium text-primary underline-offset-4 hover:underline">
-            Record a visit
-          </Link>
+          <TextLink href="/app/visits">Record a visit</TextLink>
         </CardContent>
       </Card>
     </>

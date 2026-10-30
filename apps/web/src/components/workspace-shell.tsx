@@ -8,27 +8,32 @@ import { WorkspaceNav } from "@/components/workspace-nav";
 export const WorkspaceShell = ({
   role,
   updates,
+  businessName,
   children,
 }: {
   role: UserRole | null;
   updates?: ReactNode;
+  businessName?: string | null;
   children: ReactNode;
 }) => {
   const showNav = role === "owner" || role === "technician";
 
   return (
     <div className="min-h-dvh">
-      <header className="sticky top-0 z-30 border-b border-border/80 bg-card/90 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
-          <Link href="/app" className="flex items-center gap-2.5">
+      <header className="sticky top-0 z-30 border-b border-border/80 bg-card/95 backdrop-blur-md">
+        <div className="mx-auto flex max-w-6xl items-start justify-between gap-4 px-4 py-3">
+          <Link href="/app" className="flex items-center gap-2.5 pt-1">
             <span className="grid size-9 place-items-center rounded-lg bg-primary text-sm font-semibold text-primary-foreground">BO</span>
             <span className="text-base font-semibold tracking-tight">Blue Oak</span>
           </Link>
-          <form action={signOut}>
-            <Button type="submit" variant="outline" size="sm">
-              Sign out
-            </Button>
-          </form>
+          <div className="flex flex-col items-end gap-2">
+            {businessName ? <p className="text-right text-xl font-extrabold tracking-tight text-foreground sm:text-2xl">{businessName}</p> : null}
+            <form action={signOut}>
+              <Button type="submit" variant="outline" size="sm">
+                Sign out
+              </Button>
+            </form>
+          </div>
         </div>
         {showNav ? (
           <div className="mx-auto max-w-6xl px-4 pb-3">

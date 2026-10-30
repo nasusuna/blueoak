@@ -55,7 +55,7 @@ const ChemicalsPage = async () => {
                 {rows.map((item) => (
                   <tr key={item.id} className="border-b border-border last:border-0">
                     <td className="py-3 pr-4">{categoryLabel[item.category]}</td>
-                    <td className="py-3">{item.name}</td>
+                    <td className="py-3 font-medium">{item.name}</td>
                   </tr>
                 ))}
               </tbody>
