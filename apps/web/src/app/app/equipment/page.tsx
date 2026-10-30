@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
-import { isStaff, loadWorkspace } from "@/lib/session";
+import { isStaff, loadWorkspace, redirectUnlessStaff } from "@/lib/session";
 import { EquipmentForm } from "./equipment-form";
 
 const categoryLabel: Record<string, string> = {
@@ -17,6 +17,10 @@ const labelFor = (category: string | null) => (category ? (categoryLabel[categor
 
 const EquipmentPage = async () => {
   const { supabase, profile } = await loadWorkspace();
+
+  if (profile?.role === "customer") {
+    redirectUnlessStaff(profile.role);
+  }
 
   if (!profile || !isStaff(profile.role)) {
     return <p className="text-base text-muted-foreground">Equipment types are managed by the business owner and technicians.</p>;

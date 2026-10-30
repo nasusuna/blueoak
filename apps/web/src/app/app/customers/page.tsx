@@ -1,13 +1,19 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
 import { TextLink } from "@/components/ui/text-link";
-import { isStaff, loadWorkspace } from "@/lib/session";
+import { isStaff, loadWorkspace, redirectUnlessStaff } from "@/lib/session";
 import { AddCustomer } from "./customer-form";
 
 const CustomersPage = async () => {
   const { supabase, profile } = await loadWorkspace();
 
-  if (!profile || !isStaff(profile.role)) {
+  if (!profile) {
+    return <p className="text-base text-muted-foreground">Customers are managed by the business owner and technicians.</p>;
+  }
+
+  redirectUnlessStaff(profile.role);
+
+  if (!isStaff(profile.role)) {
     return <p className="text-base text-muted-foreground">Customers are managed by the business owner and technicians.</p>;
   }
 

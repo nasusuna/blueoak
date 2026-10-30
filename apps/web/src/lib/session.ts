@@ -7,6 +7,7 @@ export type WorkspaceProfile = {
   full_name: string;
   role: UserRole;
   tenant_id: string;
+  customer_id: string | null;
 };
 
 export const loadWorkspace = async () => {
@@ -19,7 +20,7 @@ export const loadWorkspace = async () => {
 
   const { data: profile, error } = await supabase
     .from("profiles")
-    .select("id, full_name, role, tenant_id")
+    .select("id, full_name, role, tenant_id, customer_id")
     .eq("user_id", authData.user.id)
     .maybeSingle();
 
@@ -27,3 +28,9 @@ export const loadWorkspace = async () => {
 };
 
 export const isStaff = (role: UserRole) => role === "owner" || role === "technician";
+
+export const redirectUnlessStaff = (role: UserRole) => {
+  if (role === "customer") {
+    redirect("/app");
+  }
+};

@@ -1,6 +1,6 @@
 begin;
 
-select plan(23);
+select plan(25);
 
 insert into auth.users (id, email)
 values
@@ -222,6 +222,10 @@ select is(
 );
 
 reset role;
+
+insert into public.equipment_types (tenant_id, name)
+values ('c2000000-0000-4000-8000-000000000001', 'Unused analyzer');
+
 select set_config('request.jwt.claim.sub', 'c1000000-0000-4000-8000-000000000003', true);
 select set_config(
   'request.jwt.claims',
@@ -246,6 +250,18 @@ select is(
   (select count(*)::integer from public.units where serial_no = 'SN-100'),
   1,
   'customer sees their installed unit'
+);
+
+select is(
+  (select count(*)::integer from public.equipment_types where name = 'Biochemistry analyzer'),
+  1,
+  'customer sees the equipment on their machine'
+);
+
+select is(
+  (select count(*)::integer from public.equipment_types where name = 'Unused analyzer'),
+  0,
+  'customer does not see other equipment types'
 );
 
 reset role;

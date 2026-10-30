@@ -16,7 +16,8 @@ export const WorkspaceShell = ({
   businessName?: string | null;
   children: ReactNode;
 }) => {
-  const showNav = role === "owner" || role === "technician";
+  const showStaffNav = role === "owner" || role === "technician";
+  const showCustomerNav = role === "customer";
 
   return (
     <div className="min-h-dvh">
@@ -35,9 +36,18 @@ export const WorkspaceShell = ({
             </form>
           </div>
         </div>
-        {showNav ? (
+        {showStaffNav ? (
           <div className="mx-auto max-w-6xl px-4 pb-3">
             <WorkspaceNav updates={updates} />
+          </div>
+        ) : null}
+        {showCustomerNav ? (
+          <div className="mx-auto max-w-6xl px-4 pb-3">
+            <nav aria-label="Your lab" className="flex items-center gap-1">
+              <Link href="/app" aria-current="page" className="inline-flex h-9 items-center rounded-full bg-primary px-3 text-sm font-medium text-primary-foreground">
+                My lab
+              </Link>
+            </nav>
           </div>
         ) : null}
       </header>

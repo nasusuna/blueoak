@@ -2,6 +2,7 @@ import { istToday, pmdStatus, tenantSettingsSchema } from "@service-app/core";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { TextLink } from "@/components/ui/text-link";
 import { isStaff, loadWorkspace } from "@/lib/session";
+import { CustomerHome } from "./customer-home";
 
 const roleLabel = {
   platform_admin: "Platform admin",
@@ -15,6 +16,10 @@ const HomePage = async () => {
 
   if (!profile) {
     return null;
+  }
+
+  if (profile.role === "customer") {
+    return <CustomerHome profile={profile} supabase={supabase} />;
   }
 
   const { data: tenant } = await supabase.from("tenants").select("name, plan, settings").eq("id", profile.tenant_id).maybeSingle();
@@ -42,19 +47,6 @@ const HomePage = async () => {
         <h1 className="text-3xl font-semibold tracking-tight">{profile.full_name}</h1>
         <p className="text-base text-muted-foreground">{roleLabel[profile.role]}</p>
       </div>
-
-      {profile.role === "customer" ? (
-        <Card>
-          <CardHeader>
-            <h2 className="text-lg font-semibold tracking-tight">Customer portal</h2>
-          </CardHeader>
-          <CardContent>
-            <p className="text-base text-muted-foreground">
-              The customer portal is not part of this phase. Service requests will use the public form.
-            </p>
-          </CardContent>
-        </Card>
-      ) : null}
 
       {isStaff(profile.role) ? (
         <div className="grid gap-4 sm:grid-cols-3">

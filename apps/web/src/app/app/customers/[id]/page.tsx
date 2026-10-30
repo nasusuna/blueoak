@@ -4,13 +4,17 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { StatusBadge, VisitTypeBadge } from "@/components/ui/status-badge";
 import { TextLink } from "@/components/ui/text-link";
 import { formatDisplayDate } from "@/lib/format";
-import { isStaff, loadWorkspace } from "@/lib/session";
+import { isStaff, loadWorkspace, redirectUnlessStaff } from "@/lib/session";
 import { CustomerForm } from "../customer-form";
 import { AddMachine } from "./add-machine";
 
 const CustomerPage = async ({ params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params;
   const { supabase, profile } = await loadWorkspace();
+
+  if (profile?.role === "customer") {
+    redirectUnlessStaff(profile.role);
+  }
 
   if (!profile || !isStaff(profile.role)) {
     return <p className="text-base text-muted-foreground">Customer records are available to the business owner and technicians.</p>;

@@ -13,7 +13,7 @@ export const WorkspaceFrame = async ({ children }: { children: ReactNode }) => {
         <p className="max-w-2xl text-base text-muted-foreground">
           {error
             ? "Sign out and try again."
-            : "This login is not linked to a staff profile. Ask a platform admin to finish the account."}
+            : "This login is not linked to a profile yet. Ask the business owner to finish the account."}
         </p>
       </WorkspaceShell>
     );
