@@ -104,6 +104,13 @@ export const recordVisitSchema = z.object({
 
 export type RecordVisitInput = z.infer<typeof recordVisitSchema>;
 
+export const requestVisitSchema = z.object({
+  unit_id: z.uuid("Choose a machine."),
+  note: z.string().trim().min(1, "Describe the visit you need.").max(1000),
+});
+
+export type RequestVisitInput = z.infer<typeof requestVisitSchema>;
+
 export const skipPmdSchema = z.object({
   unit_id: z.uuid("Choose a machine."),
   skipped_on: calendarDateSchema,

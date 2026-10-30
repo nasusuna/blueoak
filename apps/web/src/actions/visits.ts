@@ -1,6 +1,6 @@
 "use server";
 
-import { recordVisitSchema, skipPmdSchema } from "@service-app/core";
+import { recordVisitSchema, requestVisitSchema, skipPmdSchema } from "@service-app/core";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { FormState } from "@/actions/customers";
@@ -22,6 +22,18 @@ const visitError = (message: string, fallback: string) => {
 
   if (message.includes("skipped")) {
     return "Enter why this visit was skipped.";
+  }
+
+  if (message.includes("already requested")) {
+    return "A visit is already requested for this machine.";
+  }
+
+  if (message.includes("Describe the visit")) {
+    return "Describe the visit you need.";
+  }
+
+  if (message.includes("at your lab")) {
+    return "Choose a machine at your lab.";
   }
 
   return fallback;
@@ -69,6 +81,35 @@ export const recordVisit = async (_state: FormState, formData: FormData): Promis
 
   revalidatePath("/app", "layout");
   redirect("/app/visits");
+};
+
+export const requestVisit = async (_state: FormState, formData: FormData): Promise<FormState> => {
+  const parsed = requestVisitSchema.safeParse({
+    unit_id: formData.get("unit_id"),
+    note: formData.get("note"),
+  });
+
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Check the request and try again." };
+  }
+
+  const { supabase, profile } = await loadWorkspace();
+
+  if (!profile || profile.role !== "customer" || !profile.customer_id) {
+    return { error: "You cannot request a visit." };
+  }
+
+  const { error } = await supabase.rpc("request_visit", {
+    p_unit_id: parsed.data.unit_id,
+    p_note: parsed.data.note,
+  });
+
+  if (error) {
+    return { error: visitError(error.message, "The visit could not be requested. Try again.") };
+  }
+
+  revalidatePath("/app", "layout");
+  redirect("/app");
 };
 
 export const skipPmd = async (_state: FormState, formData: FormData): Promise<FormState> => {

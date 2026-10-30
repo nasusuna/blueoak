@@ -19,14 +19,15 @@ const VisitsPage = async () => {
   }
 
   const today = istToday();
-  const [{ data: tenant }, { data: units }, { data: customers }, { data: equipmentTypes }, { data: schedules }, { data: events }] =
+  const [{ data: tenant }, { data: units }, { data: customers }, { data: equipmentTypes }, { data: schedules }, { data: requests }, { data: events }] =
     await Promise.all([
       supabase.from("tenants").select("settings").eq("id", profile.tenant_id).maybeSingle(),
       supabase.from("units").select("id, serial_no, make, model, customer_id, equipment_type_id, pmd_interval_months, status").eq("status", "active").order("serial_no"),
       supabase.from("customers").select("id, name"),
       supabase.from("equipment_types").select("id, name"),
       supabase.from("pmd_schedule").select("unit_id, due_date, completed_on").is("completed_on", null),
-      supabase.from("service_events").select("id, unit_id, type, event_date, complaint, work_done").order("event_date", { ascending: false }).limit(20),
+      supabase.from("service_events").select("id, unit_id, event_date, complaint").eq("status", "open").order("event_date"),
+      supabase.from("service_events").select("id, unit_id, type, event_date, complaint, work_done").eq("status", "completed").order("event_date", { ascending: false }).limit(20),
     ]);
 
   const settings = tenantSettingsSchema.safeParse(tenant?.settings ?? {});
@@ -58,7 +59,39 @@ const VisitsPage = async () => {
 
   return (
     <>
-      <PageHeader title="Visits" description="Due maintenance, recorded visits, and skipped dates." />
+      <PageHeader title="Visits" description="Due maintenance, visit requests, recorded visits, and skipped dates." />
+      <Card>
+        <CardHeader>
+          <h2 className="text-lg font-semibold tracking-tight">Visit requests</h2>
+        </CardHeader>
+        <CardContent>
+          {requests && requests.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="data-table w-full min-w-[36rem] text-left text-base">
+                <caption className="sr-only">Visits requested by labs</caption>
+                <thead>
+                  <tr className="border-b border-border">
+                    <th scope="col" className="py-3 pr-4 font-medium">Requested</th>
+                    <th scope="col" className="py-3 pr-4 font-medium">Machine</th>
+                    <th scope="col" className="py-3 font-medium">Note</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {requests.map((request) => (
+                    <tr key={request.id} className="border-b border-border bg-amber-50 last:border-0">
+                      <td className="py-3 pr-4">{formatDisplayDate(request.event_date)}</td>
+                      <td className="py-3 pr-4 font-medium">{unitLabel.get(request.unit_id) ?? "—"}</td>
+                      <td className="py-3">{request.complaint ?? "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p className="text-base text-muted-foreground">No labs have requested a visit.</p>
+          )}
+        </CardContent>
+      </Card>
       <Card>
         <CardHeader>
           <h2 className="text-lg font-semibold tracking-tight">Due maintenance</h2>

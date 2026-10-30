@@ -279,6 +279,13 @@ export type Database = {
         };
         Returns: string;
       };
+      request_visit: {
+        Args: {
+          p_unit_id: string;
+          p_note: string;
+        };
+        Returns: string;
+      };
       record_visit: {
         Args: {
           p_unit_id: string;

@@ -55,7 +55,7 @@ const CustomerPage = async ({ params }: { params: Promise<{ id: string }> }) => 
       ? Promise.resolve({ data: [] })
       : supabase
           .from("service_events")
-          .select("id, unit_id, type, event_date, complaint, work_done")
+          .select("id, unit_id, type, event_date, complaint, work_done, status")
           .in("unit_id", unitIds)
           .order("event_date", { ascending: false }),
   ]);
@@ -84,6 +84,8 @@ const CustomerPage = async ({ params }: { params: Promise<{ id: string }> }) => 
   });
   const attentionCount = machines.filter((unit) => unit.status === "overdue" || unit.status === "due").length;
   const serialByUnit = new Map((units ?? []).map((unit) => [unit.id, unit.serial_no]));
+  const visitRequests = (events ?? []).filter((event) => event.status === "open");
+  const visitHistory = (events ?? []).filter((event) => event.status !== "open");
   const skips = (schedules ?? []).filter((row) => row.skip_reason && row.completed_on);
 
   return (
@@ -188,7 +190,17 @@ const CustomerPage = async ({ params }: { params: Promise<{ id: string }> }) => 
           <h2 className="text-lg font-semibold tracking-tight">Visits</h2>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
-          {events && events.length > 0 ? (
+          {visitRequests.length > 0 ? (
+            <ul className="flex flex-col gap-2">
+              {visitRequests.map((request) => (
+                <li key={request.id} className="rounded-lg bg-amber-50 px-3 py-2 text-base text-amber-950">
+                  Visit requested for {serialByUnit.get(request.unit_id) ?? "a machine"} on {formatDisplayDate(request.event_date)}
+                  {request.complaint ? ` · ${request.complaint}` : ""}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+          {visitHistory.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="data-table w-full min-w-[36rem] text-left text-base">
                 <caption className="sr-only">Visits for this customer</caption>
@@ -201,7 +213,7 @@ const CustomerPage = async ({ params }: { params: Promise<{ id: string }> }) => 
                   </tr>
                 </thead>
                 <tbody>
-                  {events.map((event) => (
+                  {visitHistory.map((event) => (
                     <tr key={event.id} className="border-b border-border last:border-0">
                       <td className="py-3 pr-4">{formatDisplayDate(event.event_date)}</td>
                       <td className="py-3 pr-4">
@@ -214,9 +226,9 @@ const CustomerPage = async ({ params }: { params: Promise<{ id: string }> }) => 
                 </tbody>
               </table>
             </div>
-          ) : (
+          ) : visitRequests.length === 0 ? (
             <p className="text-base text-muted-foreground">No visits for this customer yet.</p>
-          )}
+          ) : null}
           {skips.length > 0 ? (
             <ul className="flex flex-col gap-2 text-base">
               {skips.map((row) => (

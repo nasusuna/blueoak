@@ -17,13 +17,15 @@ export const WorkspaceNotices = async () => {
   }
 
   const today = istToday();
-  const [{ data: tenant }, { data: activity }, { data: schedules }, { data: units }, { data: customers }] = await Promise.all([
-    supabase.from("tenants").select("settings").eq("id", profile.tenant_id).maybeSingle(),
-    supabase.from("activity").select("id, summary, created_at").order("created_at", { ascending: false }).limit(4),
-    supabase.from("pmd_schedule").select("unit_id, due_date, completed_on").is("completed_on", null),
-    supabase.from("units").select("id, serial_no, customer_id"),
-    supabase.from("customers").select("id, name"),
-  ]);
+  const [{ data: tenant }, { data: activity }, { data: schedules }, { data: units }, { data: customers }, { data: requests }] =
+    await Promise.all([
+      supabase.from("tenants").select("settings").eq("id", profile.tenant_id).maybeSingle(),
+      supabase.from("activity").select("id, summary, created_at").order("created_at", { ascending: false }).limit(4),
+      supabase.from("pmd_schedule").select("unit_id, due_date, completed_on").is("completed_on", null),
+      supabase.from("units").select("id, serial_no, customer_id"),
+      supabase.from("customers").select("id, name"),
+      supabase.from("service_events").select("id, unit_id, complaint").eq("status", "open"),
+    ]);
   const settings = tenantSettingsSchema.safeParse(tenant?.settings ?? {});
   const reminderDays = settings.success ? settings.data.reminder_days : 7;
   const serialByUnit = new Map((units ?? []).map((unit) => [unit.id, unit.serial_no]));
@@ -48,7 +50,12 @@ export const WorkspaceNotices = async () => {
     tone: "default" as const,
     text: row.summary,
   }));
-  const notices = [...upcoming.map(({ id, tone, text }) => ({ id, tone, text })), ...recent];
+  const requested = (requests ?? []).map((request) => ({
+    id: request.id,
+    tone: "warning" as const,
+    text: `Visit requested: ${serialByUnit.get(request.unit_id) ?? "Machine"} at ${customerName.get(customerByUnit.get(request.unit_id) ?? "") ?? "a customer"}${request.complaint ? ` — ${request.complaint}` : ""}`,
+  }));
+  const notices = [...requested, ...upcoming.map(({ id, tone, text }) => ({ id, tone, text })), ...recent];
 
   return <UpdatesMenu notices={notices} />;
 };

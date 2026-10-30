@@ -4,6 +4,7 @@ import {
   installUnitSchema,
   loginSchema,
   recordVisitSchema,
+  requestVisitSchema,
   skipPmdSchema,
   tenantSettingsSchema,
   userRoleSchema,
@@ -134,6 +135,17 @@ describe("recordVisitSchema", () => {
         event_date: "2026-07-20",
         complaint: "",
         work_done: "",
+      }).success,
+    ).toBe(false);
+  });
+});
+
+describe("requestVisitSchema", () => {
+  it("requires a note", () => {
+    expect(
+      requestVisitSchema.safeParse({
+        unit_id: "22222222-2222-4222-8222-222222222222",
+        note: "   ",
       }).success,
     ).toBe(false);
   });

@@ -4,6 +4,7 @@ import { StatusBadge, VisitTypeBadge } from "@/components/ui/status-badge";
 import { formatDisplayDate } from "@/lib/format";
 import type { createClient } from "@/lib/supabase/server";
 import type { WorkspaceProfile } from "@/lib/session";
+import { RequestVisitForm } from "./request-visit-form";
 
 type Client = Awaited<ReturnType<typeof createClient>>;
 
@@ -22,14 +23,21 @@ export const CustomerHome = async ({ profile, supabase }: { profile: WorkspacePr
     );
   }
 
-  const [{ data: lab }, { data: units }, { data: equipmentTypes }, { data: schedules }, { data: events }, { data: tenant }] = await Promise.all([
-    supabase.from("customers").select("id, name, contact_person, city").eq("id", profile.customer_id).maybeSingle(),
-    supabase.from("units").select("id, serial_no, make, model, installed_on, equipment_type_id").eq("customer_id", profile.customer_id).order("serial_no"),
-    supabase.from("equipment_types").select("id, name"),
-    supabase.from("pmd_schedule").select("unit_id, due_date, completed_on").is("completed_on", null),
-    supabase.from("service_events").select("id, unit_id, type, event_date, work_done, complaint").order("event_date", { ascending: false }).limit(12),
-    supabase.from("tenants").select("settings").eq("id", profile.tenant_id).maybeSingle(),
-  ]);
+  const [{ data: lab }, { data: units }, { data: equipmentTypes }, { data: schedules }, { data: requests }, { data: events }, { data: tenant }] =
+    await Promise.all([
+      supabase.from("customers").select("id, name, contact_person, city").eq("id", profile.customer_id).maybeSingle(),
+      supabase.from("units").select("id, serial_no, make, model, installed_on, equipment_type_id, status").eq("customer_id", profile.customer_id).order("serial_no"),
+      supabase.from("equipment_types").select("id, name"),
+      supabase.from("pmd_schedule").select("unit_id, due_date, completed_on").is("completed_on", null),
+      supabase.from("service_events").select("id, unit_id, event_date, complaint").eq("status", "open").order("event_date", { ascending: false }),
+      supabase
+        .from("service_events")
+        .select("id, unit_id, type, event_date, work_done, complaint")
+        .eq("status", "completed")
+        .order("event_date", { ascending: false })
+        .limit(12),
+      supabase.from("tenants").select("settings").eq("id", profile.tenant_id).maybeSingle(),
+    ]);
 
   if (!lab) {
     return (
@@ -69,6 +77,13 @@ export const CustomerHome = async ({ profile, supabase }: { profile: WorkspacePr
   });
   const attentionCount = machines.filter((unit) => unit.status === "overdue" || unit.status === "due").length;
   const serialByUnit = new Map(machines.map((unit) => [unit.id, unit.serial_no]));
+  const requestedUnitIds = new Set((requests ?? []).map((request) => request.unit_id));
+  const requestMachines = (units ?? [])
+    .filter((unit) => unit.status === "active" && !requestedUnitIds.has(unit.id))
+    .map((unit) => ({
+      id: unit.id,
+      label: [unit.serial_no, equipmentName.get(unit.equipment_type_id)].filter(Boolean).join(" · "),
+    }));
 
   return (
     <>
@@ -135,6 +150,28 @@ export const CustomerHome = async ({ profile, supabase }: { profile: WorkspacePr
                 </tbody>
               </table>
             </div>
+          ) : (
+            <p className="text-base text-muted-foreground">No machines are installed for your lab yet.</p>
+          )}
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <h2 className="text-lg font-semibold tracking-tight">Request a visit</h2>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
+          {requests && requests.length > 0 ? (
+            <ul className="flex flex-col gap-2">
+              {requests.map((request) => (
+                <li key={request.id} className="rounded-lg bg-amber-50 px-3 py-2 text-base text-amber-950">
+                  {serialByUnit.get(request.unit_id) ?? "Machine"} · requested {formatDisplayDate(request.event_date)}
+                  {request.complaint ? ` · ${request.complaint}` : ""}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+          {(units ?? []).some((unit) => unit.status === "active") ? (
+            <RequestVisitForm machines={requestMachines} />
           ) : (
             <p className="text-base text-muted-foreground">No machines are installed for your lab yet.</p>
           )}
