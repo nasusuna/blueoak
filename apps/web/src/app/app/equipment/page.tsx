@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { isStaff, loadWorkspace } from "@/lib/session";
+import { EquipmentBrowser } from "./equipment-browser";
 import { EquipmentForm } from "./equipment-form";
 
 const EquipmentPage = async () => {
@@ -28,23 +29,7 @@ const EquipmentPage = async () => {
         </CardHeader>
         <CardContent>
           {equipmentTypes && equipmentTypes.length > 0 ? (
-            <table className="w-full text-left text-base">
-              <caption className="sr-only">Equipment types</caption>
-              <thead>
-                <tr className="border-b border-border">
-                  <th scope="col" className="py-3 pr-4 font-medium">Name</th>
-                  <th scope="col" className="py-3 font-medium">Category</th>
-                </tr>
-              </thead>
-              <tbody>
-                {equipmentTypes.map((item) => (
-                  <tr key={item.id} className="border-b border-border last:border-0">
-                    <td className="py-3 pr-4">{item.name}</td>
-                    <td className="py-3">{item.category ?? "—"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <EquipmentBrowser equipment={equipmentTypes} />
           ) : (
             <p className="text-base text-muted-foreground">No equipment types yet.</p>
           )}
