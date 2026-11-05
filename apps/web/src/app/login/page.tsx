@@ -1,8 +1,11 @@
+import type { Metadata } from "next";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { LoginForm } from "./login-form";
 
-export const metadata = {
-  title: "Sign in",
+export const metadata: Metadata = {
+  title: {
+    absolute: "Blue Oak – Staff Sign In",
+  },
 };
 
 const LoginPage = () => (

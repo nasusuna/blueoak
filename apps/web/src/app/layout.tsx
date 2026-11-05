@@ -9,10 +9,14 @@ const geist = Geist({
 
 export const metadata: Metadata = {
   title: {
-    default: "Blue Oak",
+    default: "Blue Oak – Staff Sign In",
     template: "%s · Blue Oak",
   },
   description: "Service workspace for installed equipment and preventive maintenance.",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 const RootLayout = ({ children }: Readonly<{ children: ReactNode }>) => (
